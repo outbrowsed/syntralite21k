@@ -9,7 +9,7 @@
 ---
 
 Demo:
-Download index.html open it and see it urself
+Download singlefile.html open it and see it urself, or go to <https://outbrowsed.github.io/syntralite21k/>
 ---
 
 ## Features
