@@ -1,0 +1,15 @@
+.DS_Store
+.idea
+.next
+.obsidian
+.now
+.idea
+.env
+node_modules
+build
+sandbox
+stash
+coverage
+stats
+*.log
+outlined

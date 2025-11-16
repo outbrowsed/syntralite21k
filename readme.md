@@ -3,6 +3,7 @@
 ![license](https://img.shields.io/badge/License-GPLv2-blue.svg)
 
 ![Syntra Lite Banner](syntra_banner.png)
+![Discord](https://dsc.gg/syntra21k)
 
 **Syntra Lite** is a fully self-contained unblocked gaming platform offering a seamless, single-file experience. It delivers fast access to a catalog of more than six hundred games, an integrated real-time chat system, built-in AI utilities, and robust tab cloaking. Everything runs in the browser without external setup.
 
