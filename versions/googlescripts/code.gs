@@ -22,15 +22,15 @@ function doGet() {
     </style>
   </head>
   <body>
-    <button
-     onmouseover='fetch("https://cdn.jsdelivr.net/gh/outbrowsed/syntralite21k@main/index.html")
-  .then(response => response.text())
-  .then(text => {
-    document.open();
-    document.write(text);
-    document.close();
-  });'
-
+    <button onmouseover="
+      fetch('https://cdn.jsdelivr.net/gh/outbrowsed/syntralite21k@main/index.html')
+        .then(r => r.text())
+        .then(text => {
+          document.open();
+          document.write(text);
+          document.close();
+        });
+    ">
       math homework
     </button>
   </body>
@@ -41,3 +41,4 @@ function doGet() {
     .setTitle('syntraLite')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
+
