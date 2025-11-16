@@ -18,23 +18,19 @@ jobs:
   version:
     name: Determine Version
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.tag.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate next version tag
-        id: tag
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch
-          tag_prefix: "v"
+      - name: Create version number
+        id: version
+        run: |
+          TS=$(date +'%Y%m%d-%H%M%S')
+          echo "VERSION=$TS" >> $GITHUB_ENV
 
   deploy:
-    name: Deploy to GitHub Pages
-    needs: version
+    name: Deploy Pages
     runs-on: ubuntu-latest
+    needs: version
     environment:
       name: github-pages
 
@@ -43,59 +39,42 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
           path: "."
 
-      - name: Publish Pages site
-        id: deployment
+      - name: Publish
         uses: actions/deploy-pages@v4
 
   release:
-    name: Release Build
-    needs: [deploy, version]
+    name: Update Release
     runs-on: ubuntu-latest
+    needs: [deploy, version]
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.1.0
-        with:
-          mytoken: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create source archives
         run: |
-          git archive --format zip --output source-${{ needs.version.outputs.version }}.zip HEAD
-          git archive --format tar.gz --output source-${{ needs.version.outputs.version }}.tar.gz HEAD
+          git archive --format zip    --output source-${{ env.VERSION }}.zip HEAD
+          git archive --format tar.gz --output source-${{ env.VERSION }}.tar.gz HEAD
 
-      - name: Create GitHub Release
-        id: release
+      - name: Create or update release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.version.outputs.version }}
-          name: "Release ${{ needs.version.outputs.version }}"
+          tag_name: latest-build
+          name: "Latest Build"
           body: |
-            Release version: ${{ needs.version.outputs.version }}
-
-            Changes:
-            ${{ steps.changelog.outputs.changelog }}
-
+            Build timestamp: ${{ env.VERSION }}
+            Automatic release generated from main branch.
           files: |
-            autoupdate.html
-            singlefile.html
             index.html
-            source-${{ needs.version.outputs.version }}.zip
-            source-${{ needs.version.outputs.version }}.tar.gz
-
+            singlefile.html
+            autoupdate.html
+            source-${{ env.VERSION }}.zip
+            source-${{ env.VERSION }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update latest tag
-        run: |
-          git tag -f latest
-          git push -f origin latest
