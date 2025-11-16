@@ -1,43 +1,101 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy and Release
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate next version tag
+        id: tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          tag_prefix: "v"
+
   deploy:
+    name: Deploy to GitHub Pages
+    needs: version
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
+          path: "."
+
+      - name: Publish Pages site
         id: deployment
         uses: actions/deploy-pages@v4
+
+  release:
+    name: Release Build
+    needs: [deploy, version]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.1.0
+        with:
+          mytoken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create source archives
+        run: |
+          git archive --format zip --output source-${{ needs.version.outputs.version }}.zip HEAD
+          git archive --format tar.gz --output source-${{ needs.version.outputs.version }}.tar.gz HEAD
+
+      - name: Create GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.version }}
+          name: "Release ${{ needs.version.outputs.version }}"
+          body: |
+            Release version: ${{ needs.version.outputs.version }}
+
+            Changes:
+            ${{ steps.changelog.outputs.changelog }}
+
+          files: |
+            autoupdate.html
+            singlefile.html
+            index.html
+            source-${{ needs.version.outputs.version }}.zip
+            source-${{ needs.version.outputs.version }}.tar.gz
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest tag
+        run: |
+          git tag -f latest
+          git push -f origin latest
