@@ -9,1530 +9,1861 @@
       rel="stylesheet"
     />
     <style>
-      :root {
-        --radius: 0.875rem;
-        --primary: oklch(0.922 0 0);
-        --primary-foreground: #0e0e0e;
-        --secondary: oklch(0.269 0 0);
-        --secondary-foreground: oklch(0.985 0 0);
-        --accent: #262626;
-        --accent-foreground: oklch(0.985 0 0);
-        --background: oklch(0.145 0 0);
-        --foreground: oklch(0.985 0 0);
-        --card: oklch(0.205 0 0);
-        --card-foreground: oklch(0.985 0 0);
-        --popover: oklch(0.269 0 0);
-        --popover-foreground: oklch(0.985 0 0);
-        --muted: oklch(0.269 0 0);
-        --muted-foreground: oklch(0.708 0 0);
-        --destructive: oklch(0.704 0.191 22.216);
-        --destructive-foreground: oklch(0.985 0 0);
-        --border: oklch(1 0 0 / 10%);
-        --input: oklch(1 0 0 / 15%);
-        --ring: oklch(0.556 0 0);
-        --sidebar: oklch(15.907% 0.00002 271.152);
-        --sidebar-foreground: oklch(0.985 0 0);
-      }
-
-      @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "Geist", sans-serif;
-        background-color: var(--background);
-        color: var(--foreground);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      .app-container {
-        display: grid;
-        grid-template-columns: 16rem 1fr;
-        height: 100vh;
-        position: relative;
-        transition: grid-template-columns 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .app-container.sidebar-collapsed {
-        grid-template-columns: 0 1fr;
-      }
-
-      @keyframes slideInLeft {
-        from {
-          opacity: 0;
-          transform: translateX(-2rem);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(2rem);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fadeInScale {
-        from {
-          opacity: 0;
-          transform: scale(0.8);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .sidebar {
-        background-color: var(--sidebar);
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 100;
-        border-right: 1px solid var(--border);
-        overflow: hidden;
-        animation: slideInLeft 600ms cubic-bezier(0.4, 0, 0.2, 1);
-        height: 100vh;
-      }
-
-      .sidebar::-webkit-scrollbar {
-        display: none;
-      }
-
-      .sidebar {
-        scrollbar-width: none;
-      }
-
-      .sidebar.hidden {
-        padding: 0;
-        border-right: none;
-      }
-
-      .sidebar-overlay {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 99;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        display: none;
-      }
-
-      .sidebar-overlay.visible {
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .sidebar-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem;
-        margin-bottom: 2rem;
-      }
-
-      .nav-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.625rem 0.75rem;
-        border-radius: calc(var(--radius) - 0.25rem);
-        cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        color: var(--sidebar-foreground);
-        font-size: 0.9375rem;
-        text-decoration: none;
-        position: relative;
-        opacity: 0;
-        animation: fadeInUp 400ms forwards;
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .nav-item:nth-child(1) {
-        animation-delay: 200ms;
-      }
-
-      .nav-item:nth-child(2) {
-        animation-delay: 300ms;
-      }
-
-      .nav-item:nth-child(3) {
-        animation-delay: 400ms;
-      }
-
-      .nav-item:nth-child(4) {
-        animation-delay: 500ms;
-      }
-
-      .nav-item:nth-child(5) {
-        animation-delay: 600ms;
-      }
-
-      .nav-item svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        flex-shrink: 0;
-        transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .nav-item:hover {
-        background-color: var(--muted);
-      }
-
-      .nav-item:hover svg {
-        transform: scale(1.1);
-      }
-
-      .nav-item.active {
-        background-color: var(--accent);
-        color: var(--primary);
-      }
-
-      .nav-item:active {
-        transform: scale(0.98);
-      }
-
-      .sidebar-toggle {
-        width: 2.5rem;
-        height: 2.5rem;
-        border: 1px solid var(--border);
-        border-radius: calc(var(--radius) - 0.25rem);
-        background-color: var(--card);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        z-index: 200;
-      }
-
-      .sidebar-toggle:hover {
-        background-color: var(--muted);
-        border-color: var(--primary);
-      }
-
-      .sidebar-toggle:active {
-        transform: scale(0.95);
-      }
-
-      .sidebar-toggle svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: var(--foreground);
-        transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .sidebar-toggle.active svg {
-        transform: rotate(180deg);
-      }
-
-      .content-wrapper {
-        background-color: var(--sidebar);
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        transition: padding 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        min-width: 0;
-        overflow: scroll;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-
-      .content-wrapper::-webkit-scrollbar {
-        width: 0;
-        height: 0;
-      }
-
-      .content-area {
-        position: relative;
-        flex: 1;
-        background-color: var(--background);
-        border-radius: var(--radius);
-        padding: 5rem 2rem 2rem;
-      }
-
-      .sidebar-footer {
-        margin-top: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border);
-        opacity: 0;
-        animation: fadeInUp 600ms 700ms forwards;
-      }
-
-      .status-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        background-color: var(--muted);
-        border-radius: calc(var(--radius) - 0.25rem);
-        font-size: 0.875rem;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        justify-content: center;
-        cursor: pointer;
-        position: relative;
-      }
-
-      .status-indicator:hover {
-        background-color: var(--accent);
-        transform: translateY(-1px);
-      }
-
-      .status-indicator:active {
-        transform: translateY(0) scale(0.98);
-      }
-
-      .status-indicator svg {
-        width: 1rem;
-        height: 1rem;
-        color: var(--muted-foreground);
-        flex-shrink: 0;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .status-indicator.loading svg {
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .status-indicator:hover svg {
-        color: var(--foreground);
-        transform: scale(1.1);
-      }
-
-      .status-tooltip {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-0.5rem);
-        background-color: var(--popover);
-        color: var(--popover-foreground);
-        padding: 0.5rem 0.75rem;
-        border-radius: calc(var(--radius) - 0.25rem);
-        font-size: 0.75rem;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-      }
-
-      .status-indicator:hover .status-tooltip {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-0.75rem);
-      }
-
-      .status-badge {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.8125rem;
-        font-weight: 500;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .status-badge.updating {
-        animation: badgePulse 600ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      @keyframes badgePulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-      }
-
-      .status-badge.good {
-        background-color: rgba(34, 197, 94, 0.15);
-        color: #22c55e;
-      }
-
-      .status-badge.medium {
-        background-color: rgba(234, 179, 8, 0.15);
-        color: #eab308;
-      }
-
-      .status-badge.bad {
-        background-color: rgba(239, 68, 68, 0.15);
-        color: #ef4444;
-      }
-
-      .status-badge.offline {
-        background-color: rgba(156, 163, 175, 0.15);
-        color: #9ca3af;
-      }
-
-      .status-dot {
-        width: 0.5rem;
-        height: 0.5rem;
-        border-radius: 50%;
-        animation: pulse-dot 2s ease-in-out infinite;
-      }
-
-      .status-badge.good .status-dot {
-        background-color: #22c55e;
-        box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-      }
-
-      .status-badge.medium .status-dot {
-        background-color: #eab308;
-        box-shadow: 0 0 8px rgba(234, 179, 8, 0.5);
-      }
-
-      .status-badge.bad .status-dot {
-        background-color: #ef4444;
-        box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
-      }
-
-      .status-badge.offline .status-dot {
-        background-color: #9ca3af;
-        animation: none;
-      }
-
-      @keyframes pulse-dot {
-        0%,
-        100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-        50% {
-          opacity: 0.6;
-          transform: scale(0.95);
-        }
-      }
-
-      .footer-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .footer-btn {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.625rem;
-        border-radius: calc(var(--radius) - 0.25rem);
-        background-color: var(--card);
-        border: 1px solid var(--border);
-        cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none;
-      }
-
-      .footer-btn svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: var(--foreground);
-      }
-
-      .footer-btn:hover {
-        background-color: var(--muted);
-        border-color: var(--primary);
-      }
-
-      .footer-btn:active {
-        transform: scale(0.95);
-      }
-
-      body,
-      .content-area {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-
-      body::-webkit-scrollbar,
-      .content-area::-webkit-scrollbar {
-        display: none;
-      }
-
-      .symbol {
-        width: 100%;
-        max-width: 50px;
-        align-items: center;
-        height: auto;
-        margin-top: -16px;
-        margin-bottom: -33px;
-      }
-
-      .games-content {
-        position: relative;
-        z-index: 1;
-        max-width: 1600px;
-        margin: 0 auto;
-        width: 100%;
-        opacity: 0;
-        animation: fadeIn 600ms 200ms forwards;
-      }
-
-      .search-wrapper {
-        position: relative;
-        max-width: 600px;
-        margin: 0 auto 48px;
-        opacity: 0;
-        animation: slideUp 600ms 300ms forwards;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 16px 52px 16px 20px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        font-size: 15px;
-        font-family: inherit;
-        background: var(--card);
-        color: var(--foreground);
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .search-input::placeholder {
-        color: var(--muted-foreground);
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px oklch(0.922 0 0 / 0.1);
-      }
-
-      .search-icon {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--muted-foreground);
-        pointer-events: none;
-      }
-
-      .search-icon svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      .player-view {
-        display: none;
-      }
-
-      .player-view.active {
-        display: block;
-        animation: fadeIn 400ms ease-out;
-      }
-
-      .breadcrumb-bar {
-        padding: 1.25rem 0;
-        margin-bottom: 2rem;
-        opacity: 0;
-        animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      .breadcrumb {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.625rem;
-        background-color: var(--secondary);
-        padding: 0.625rem 1.125rem;
-        border-radius: var(--radius);
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-      }
-
-      .breadcrumb:hover {
-        background-color: var(--accent);
-        transform: translateY(-1px);
-      }
-
-      .breadcrumb svg {
-        width: 1rem;
-        height: 1rem;
-        color: var(--muted-foreground);
-        transition: color 300ms ease;
-      }
-
-      .breadcrumb:hover svg {
-        color: var(--foreground);
-      }
-
-      .breadcrumb-text {
-        font-size: 0.875rem;
-        color: var(--muted-foreground);
-        transition: color 300ms ease;
-      }
-
-      .breadcrumb-separator {
-        color: var(--border);
-      }
-
-      .breadcrumb-current {
-        color: var(--foreground);
-        font-weight: 500;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .player-container {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-
-      .player-header {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        opacity: 0;
-        animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
-      }
-
-      .game-icon {
-        width: 5.5rem;
-        height: 5.5rem;
-        background-color: #ffffff;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-      }
-
-      .game-icon:hover {
-        transform: scale(1.05) rotate(-3deg);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      }
-
-      .game-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .game-icon svg {
-        width: 3.25rem;
-        height: 3.25rem;
-        color: #9ca3af;
-      }
-
-      .header-content h1 {
-        font-size: 2rem;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-      }
-
-      .game-container {
-        position: relative;
-        background-color: #000000;
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
-      }
-
-      .game-display {
-        min-height: 70vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2.5rem;
-        padding: 4rem 2rem;
-        position: relative;
-      }
-
-      .game-logo-large {
-        width: 10rem;
-        height: 10rem;
-        background-color: #e5e7eb;
-        border-radius: 1.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        position: relative;
-        z-index: 1;
-        overflow: hidden;
-      }
-
-      .game-logo-large:hover {
-        transform: scale(1.08) rotate(-4deg);
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-      }
-
-      .game-logo-large img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .game-logo-large svg {
-        width: 6.5rem;
-        height: 6.5rem;
-        color: #9ca3af;
-      }
-
-      .game-details {
-        text-align: center;
-        max-width: 600px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .game-title {
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        letter-spacing: -0.03em;
-      }
-
-      .game-description {
-        font-size: 1.0625rem;
-        color: var(--muted-foreground);
-        line-height: 1.6;
-      }
-
-      .play-button {
-        background-color: #747474;
-        color: white;
-        border: none;
-        padding: 1.25rem 4rem;
-        border-radius: 1.125rem;
-        font-size: 1.125rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        position: relative;
-        z-index: 1;
-        font-family: "Geist", sans-serif;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .play-button:hover {
-        background-color: #0891b2;
-        transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(6, 182, 212, 0.5);
-      }
-
-      .play-button:active {
-        transform: translateY(-2px);
-      }
-
-      .play-button svg {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
-
-      .loading-overlay {
-        position: absolute;
-        inset: 0;
-        background: var(--background);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 16px;
-        z-index: 10;
-      }
-
-      .loading-spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid var(--border);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      .loading-text {
-        color: var(--muted-foreground);
-        font-size: 14px;
-      }
-
-      .game-display iframe {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-      }
-      .toolbar {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 20;
-      }
-
-      .tool-button {
-        background-color: rgba(38, 38, 38, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border);
-        width: 3rem;
-        height: 3rem;
-        border-radius: calc(var(--radius) * 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-      }
-
-      .tool-button:hover {
-        background-color: var(--secondary);
-        transform: translateY(-2px);
-        border-color: var(--muted-foreground);
-      }
-
-      .tool-button:active {
-        transform: translateY(0);
-      }
-
-      .tool-button svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: var(--foreground);
-        transition: transform 300ms ease;
-      }
-
-      .tool-button:hover svg {
-        transform: scale(1.1);
-      }
-
-      .tool-button.external:hover svg {
-        transform: rotate(45deg) scale(1.1);
-      }
-
-      .controls {
-        display: flex;
-        gap: 0.75rem;
-      }
-
-      .control-button {
-        background-color: rgba(38, 38, 38, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border);
-        width: 3rem;
-        height: 3rem;
-        border-radius: calc(var(--radius) * 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 0;
-        animation: fadeInScale 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      }
-
-      .control-button:nth-child(1) {
-        animation-delay: 200ms;
-      }
-
-      .control-button:nth-child(2) {
-        animation-delay: 300ms;
-      }
-
-      .control-button:nth-child(3) {
-        animation-delay: 400ms;
-      }
-
-      .control-button:nth-child(4) {
-        animation-delay: 500ms;
-      }
-
-      .control-button:hover {
-        background-color: var(--secondary);
-        transform: translateY(-2px);
-        border-color: var(--muted-foreground);
-      }
-
-      .control-button:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-
-      .control-button:disabled:hover {
-        background-color: rgba(38, 38, 38, 0.8);
-        transform: none;
-        border-color: var(--border);
-      }
-
-      .control-button svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: var(--foreground);
-        transition: transform 300ms ease;
-      }
-
-      .control-button:hover svg {
-        transform: scale(1.1);
-      }
-
-      .tooltip {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-8px);
-        background-color: var(--card);
-        color: var(--card-foreground);
-        padding: 0.5rem 0.75rem;
-        border-radius: calc(var(--radius) * 0.6);
-        font-size: 0.8125rem;
-        white-space: nowrap;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        z-index: 10;
-      }
-
-      .tooltip::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 4px solid transparent;
-        border-top-color: var(--card);
-      }
-
-      .tool-button:hover .tooltip,
-      .control-button:hover .tooltip {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-12px);
-      }
-
-      .similar-section {
-        margin-top: 3rem;
-        opacity: 0;
-        animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms forwards;
-      }
-
-      .similar-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: var(--foreground);
-      }
-
-      .similar-title svg {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-
-      .similar-carousel {
-        display: flex;
-        gap: 1.25rem;
-        overflow-x: auto;
-        scroll-behavior: smooth;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        padding-bottom: 1rem;
-      }
-
-      .similar-carousel::-webkit-scrollbar {
-        display: none;
-      }
-
-      .similar-card {
-        flex: 0 0 auto;
-        width: 200px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .similar-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-        border-color: var(--primary);
-      }
-
-      .similar-card img {
-        width: 100%;
-        aspect-ratio: 1;
-        object-fit: cover;
-        transition: transform 400ms;
-      }
-
-      .similar-card:hover img {
-        transform: scale(1.08);
-      }
-
-      .similar-card-info {
-        padding: 12px;
-      }
-
-      .similar-card-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--foreground);
-        margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .similar-card-author {
-        font-size: 12px;
-        color: var(--muted-foreground);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .browse-view {
-        display: block;
-      }
-
-      .browse-view.hidden {
-        display: none;
-      }
-
-      .section {
-        margin-bottom: 64px;
-        opacity: 0;
-        animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      .section:nth-child(2) {
-        animation-delay: 400ms;
-      }
-
-      .section:nth-child(3) {
-        animation-delay: 500ms;
-      }
-
-      .section:nth-child(4) {
-        animation-delay: 600ms;
-      }
-
-      .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 28px;
-      }
-
-      .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: var(--foreground);
-      }
-
-      .section-title svg {
-        width: 24px;
-        height: 24px;
-      }
-
-      .game-count {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--muted-foreground);
-        padding: 6px 14px;
-        background: var(--secondary);
-        border-radius: calc(var(--radius) * 0.7);
-        border: 1px solid var(--border);
-      }
-
-      .carousel-container {
-        position: relative;
-        margin: 0 -12px;
-      }
-
-      .carousel-track {
-        display: flex;
-        gap: 20px;
-        padding: 0 12px;
-        overflow-x: auto;
-        scroll-behavior: smooth;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-
-      .carousel-track::-webkit-scrollbar {
-        display: none;
-      }
-
-      .carousel-card {
-        flex: 0 0 auto;
-        cursor: pointer;
-        border-radius: var(--radius);
-        overflow: hidden;
-        position: relative;
-        background: var(--card);
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border);
-      }
-
-      .carousel-card.wide {
-        width: 320px;
-        height: 200px;
-      }
-
-      .carousel-card.square {
-        width: 200px;
-        height: 200px;
-      }
-
-      .carousel-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-        border-color: var(--primary);
-      }
-
-      .carousel-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 400ms;
-      }
-
-      .carousel-card:hover img {
-        transform: scale(1.08);
-      }
-
-      .carousel-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          180deg,
-          transparent 40%,
-          rgba(0, 0, 0, 0.98) 100%
-        );
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-      }
-
-      .carousel-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 6px;
-        line-height: 1.3;
-      }
-
-      .carousel-meta {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .carousel-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 44px;
-        height: 44px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        transition: all 200ms;
-        color: var(--foreground);
-      }
-
-      .carousel-nav:hover {
-        background: var(--primary);
-        color: var(--primary-foreground);
-        border-color: var(--primary);
-        transform: translateY(-50%) scale(1.1);
-      }
-
-      .carousel-nav svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      .carousel-nav.prev {
-        left: 12px;
-      }
-
-      .carousel-nav.next {
-        right: 12px;
-      }
-
-      .games-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 24px;
-      }
-
-      .game-card {
-        position: relative;
-        aspect-ratio: 1;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .game-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-        border-color: var(--primary);
-      }
-
-      .game-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 400ms;
-      }
-
-      .game-card:hover img {
-        transform: scale(1.08);
-      }
-
-      .game-info {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          180deg,
-          transparent 40%,
-          rgba(0, 0, 0, 0.98) 100%
-        );
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        opacity: 0;
-        transition: opacity 300ms;
-      }
-
-      .game-card:hover .game-info {
-        opacity: 1;
-      }
-
-      .game-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 6px;
-        line-height: 1.3;
-      }
-
-      .game-author-text {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .toast-container {
-        position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .toast {
-        background-color: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1rem 1.25rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        min-width: 300px;
-        animation: toastSlideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      @keyframes toastSlideIn {
-        from {
-          opacity: 0;
-          transform: translateX(100%);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .toast.removing {
-        animation: toastSlideOut 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      @keyframes toastSlideOut {
-        from {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        to {
-          opacity: 0;
-          transform: translateX(100%);
-        }
-      }
-
-      .toast-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        flex-shrink: 0;
-      }
-
-      .toast.success .toast-icon {
-        color: #22c55e;
-      }
-
-      .toast.error .toast-icon {
-        color: #ef4444;
-      }
-
-      .toast.info .toast-icon {
-        color: #06b6d4;
-      }
-
-      .toast-content {
-        flex: 1;
-      }
-
-      .toast-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-      }
-
-      .toast-message {
-        font-size: 0.8125rem;
-        color: var(--muted-foreground);
-      }
-
-      @media (max-width: 1024px) {
-        .games-grid {
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 20px;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .app-container {
-          display: block;
-        }
-
-        .sidebar {
-          position: fixed;
-          left: 0;
-          top: 0;
-          height: 100vh;
-          transform: translateX(-100%);
-          transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 101;
-          width: 16rem;
-        }
-
-        .sidebar.open {
-          transform: translateX(0);
-        }
-
-        .sidebar.hidden {
-          width: 16rem;
-          transform: translateX(-100%);
-          padding: 1rem;
-        }
-
-        .sidebar-overlay {
-          display: block;
-        }
-
-        .content-area {
-          padding: 4rem 1.5rem 2rem;
-        }
-
-        .games-grid {
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 16px;
-        }
-
-        .carousel-card.wide {
-          width: 240px;
-          height: 150px;
-        }
-
-        .carousel-card.square {
-          width: 150px;
-          height: 150px;
-        }
-
-        .section-title {
-          font-size: 20px;
-        }
-
-        .player-header {
-          gap: 1rem;
-        }
-
-        .game-icon {
-          width: 4rem;
-          height: 4rem;
-        }
-
-        .game-icon svg {
-          width: 2.5rem;
-          height: 2.5rem;
-        }
-
-        .header-content h1 {
-          font-size: 1.5rem;
-        }
-
-        .game-display {
-          min-height: 60vh;
-          padding: 3rem 1.5rem;
-          gap: 2rem;
-        }
-
-        .game-logo-large {
-          width: 8rem;
-          height: 8rem;
-        }
-
-        .game-logo-large svg {
-          width: 5rem;
-          height: 5rem;
-        }
-
-        .game-title {
-          font-size: 2rem;
-        }
-
-        .game-description {
-          font-size: 0.9375rem;
-        }
-
-        .play-button {
-          padding: 1rem 3rem;
-          font-size: 1rem;
-        }
-
-        .toolbar {
-          padding: 1rem;
-        }
-
-        .controls {
-          gap: 0.5rem;
-        }
-
-        .tool-button,
-        .control-button {
-          width: 2.5rem;
-          height: 2.5rem;
-        }
-
-        .toast-container {
-          top: 1rem;
-          right: 1rem;
-          left: 1rem;
-        }
-
-        .toast {
-          min-width: auto;
-        }
-
-        .breadcrumb-current {
-          max-width: 120px;
-        }
-      }
+:root {
+  --radius: 0.875rem;
+  --primary: oklch(0.98 0 0);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.24 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.20 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 0.12);
+  --input: oklch(1 0 0 / 0.18);
+  --ring: oklch(0.60 0 0);
+  --sidebar: oklch(0.15 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Geist", sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  height: 100vh;
+  position: relative;
+  transition: grid-template-columns 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-container.sidebar-collapsed {
+  grid-template-columns: 0 1fr;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sidebar {
+  background-color: var(--sidebar);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  animation: slideInLeft 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100vh;
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar.hidden {
+  padding: 0;
+  border-right: none;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
+}
+
+.sidebar-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--sidebar-foreground);
+  font-size: 0.9375rem;
+  text-decoration: none;
+  position: relative;
+  opacity: 0;
+  animation: fadeInUp 400ms forwards;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:nth-child(1) { animation-delay: 200ms; }
+.nav-item:nth-child(2) { animation-delay: 300ms; }
+.nav-item:nth-child(3) { animation-delay: 400ms; }
+.nav-item:nth-child(4) { animation-delay: 500ms; }
+.nav-item:nth-child(5) { animation-delay: 600ms; }
+
+.nav-item svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover {
+  background-color: var(--muted);
+}
+
+.nav-item:hover svg {
+  transform: scale(1.1);
+}
+
+.nav-item.active {
+  background-color: var(--accent);
+  color: var(--primary);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+}
+
+.sidebar-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  background-color: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+}
+
+.sidebar-toggle:active {
+  transform: scale(0.95);
+}
+
+.sidebar-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--foreground);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle.active svg {
+  transform: rotate(180deg);
+}
+
+.content-wrapper {
+  background-color: var(--sidebar);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: padding 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+  overflow: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content-wrapper::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.content-area {
+  position: relative;
+  flex: 1;
+  background-color: var(--background);
+  border-radius: var(--radius);
+  padding: 5rem 2rem 2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content-area::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeInUp 600ms 700ms forwards;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--muted);
+  border-radius: calc(var(--radius) - 0.25rem);
+  font-size: 0.875rem;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.status-indicator:hover {
+  background-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.status-indicator:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.status-indicator svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-indicator.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.status-indicator:hover svg {
+  color: var(--foreground);
+  transform: scale(1.1);
+}
+
+.status-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-0.5rem);
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  padding: 0.5rem 0.75rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.status-indicator:hover .status-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-0.75rem);
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-badge.updating {
+  animation: badgePulse 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.status-badge.good {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.status-badge.medium {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.status-badge.bad {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.status-badge.offline {
+  background-color: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.status-badge.good .status-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-badge.medium .status-dot {
+  background-color: #eab308;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.5);
+}
+
+.status-badge.bad .status-dot {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.status-badge.offline .status-dot {
+  background-color: #9ca3af;
+  animation: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
+.footer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.footer-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--foreground);
+}
+
+.footer-btn:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+}
+
+.footer-btn:active {
+  transform: scale(0.95);
+}
+
+.symbol {
+  width: 100%;
+  max-width: 50px;
+  align-items: center;
+  height: auto;
+  margin-top: -16px;
+  margin-bottom: -33px;
+}
+
+.games-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  opacity: 0;
+  animation: fadeIn 600ms 200ms forwards;
+}
+
+.search-wrapper {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto 48px;
+  opacity: 0;
+  animation: slideUp 600ms 300ms forwards;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 100px 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--card);
+  color: var(--foreground);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px oklch(0.922 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+.search-icon {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+  transition: all 300ms ease;
+}
+
+.search-input:focus ~ .search-icon {
+  color: var(--primary);
+}
+
+.search-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--muted);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--muted-foreground);
+}
+
+.search-clear:hover {
+  background: var(--accent);
+  color: var(--foreground);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-clear svg {
+  width: 16px;
+  height: 16px;
+}
+
+.section {
+  margin-bottom: 64px;
+  opacity: 0;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.section:nth-child(2) { animation-delay: 400ms; }
+.section:nth-child(3) { animation-delay: 500ms; }
+.section:nth-child(4) { animation-delay: 600ms; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--foreground);
+}
+
+.section-title svg {
+  width: 24px;
+  height: 24px;
+}
+
+.game-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  padding: 6px 14px;
+  background: var(--secondary);
+  border-radius: calc(var(--radius) * 0.7);
+  border: 1px solid var(--border);
+  transition: all 200ms ease;
+}
+
+.carousel-container {
+  position: relative;
+  margin: 0 -12px;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  padding: 0 12px 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-card {
+  flex: 0 0 auto;
+  cursor: pointer;
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--card);
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid var(--border);
+}
+
+.carousel-card.wide {
+  width: 320px;
+  height: 200px;
+}
+
+.carousel-card.square {
+  width: 200px;
+  height: 200px;
+}
+
+.carousel-image-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.carousel-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  border-color: var(--primary);
+}
+
+.carousel-card:hover img {
+  transform: scale(1.15);
+}
+
+.carousel-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.98) 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.carousel-card:hover .carousel-overlay {
+  opacity: 1;
+}
+
+.carousel-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  transform: translateY(10px);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.carousel-card:hover .carousel-name {
+  transform: translateY(0);
+}
+
+.carousel-meta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  transform: translateY(10px);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 50ms;
+}
+
+.carousel-card:hover .carousel-meta {
+  transform: translateY(0);
+}
+
+.carousel-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.carousel-card:hover .carousel-shine {
+  transform: translateX(100%);
+}
+
+.carousel-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-nav-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--foreground);
+}
+
+.carousel-nav-btn:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
+.carousel-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.carousel-nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.carousel-progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: 9999px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.carousel-progress-bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 9999px;
+  transition: width 150ms ease;
+  box-shadow: 0 0 12px var(--primary);
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.game-card {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.game-card-image-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.game-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  border-color: var(--primary);
+}
+
+.game-card:hover img {
+  transform: scale(1.15);
+}
+
+.game-info {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.98) 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.game-card:hover .game-info {
+  opacity: 1;
+}
+
+.game-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  transform: translateY(10px);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.game-card:hover .game-name {
+  transform: translateY(0);
+}
+
+.game-author-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  transform: translateY(10px);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 50ms;
+}
+
+.game-card:hover .game-author-text {
+  transform: translateY(0);
+}
+
+.game-card-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.game-card:hover .game-card-shine {
+  transform: translateX(100%);
+}
+
+.skeleton-card {
+  background: linear-gradient(90deg, var(--card) 25%, var(--muted) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.skeleton-card.wide {
+  width: 320px;
+  height: 200px;
+}
+
+.skeleton-card.square {
+  aspect-ratio: 1;
+}
+
+.skeleton-text {
+  width: 60px;
+  height: 20px;
+  background: linear-gradient(90deg, var(--muted) 25%, var(--accent) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.no-results svg {
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+}
+
+.no-results-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.no-results-text {
+  font-size: 14px;
+}
+
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toast {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 320px;
+  position: relative;
+  overflow: hidden;
+  animation: toastSlideIn 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(120%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.toast.removing {
+  animation: toastSlideOut 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(120%) scale(0.8);
+  }
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left;
+}
+
+.toast-progress.success {
+  background: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.toast-progress.error {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+.toast-progress.info {
+  background: #06b6d4;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+
+@keyframes toastProgress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.toast-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+  color: #22c55e;
+}
+
+.toast.error .toast-icon {
+  color: #ef4444;
+}
+
+.toast.info .toast-icon {
+  color: #06b6d4;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.toast-message {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.toast-close {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.toast-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.error-state svg {
+  width: 64px;
+  height: 64px;
+  color: var(--destructive);
+}
+
+.error-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.error-text {
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+.browse-view,
+.player-view {
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.browse-view.hidden {
+  display: none;
+}
+
+.player-view {
+  display: none;
+}
+
+.player-view.active {
+  display: block;
+  animation: fadeIn 400ms ease-out;
+}
+
+.breadcrumb-bar {
+  padding: 1.25rem 0;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  background-color: var(--secondary);
+  padding: 0.625rem 1.125rem;
+  border-radius: var(--radius);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.breadcrumb:hover {
+  background-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.breadcrumb:active {
+  transform: translateY(0);
+}
+
+.breadcrumb svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted-foreground);
+  transition: all 300ms ease;
+}
+
+.breadcrumb:hover svg {
+  color: var(--foreground);
+  transform: scale(1.1);
+}
+
+.breadcrumb-text {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  transition: color 300ms ease;
+}
+
+.breadcrumb:hover .breadcrumb-text {
+  color: var(--foreground);
+}
+
+.breadcrumb-separator {
+  color: var(--border);
+}
+
+.breadcrumb-current {
+  color: var(--foreground);
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  opacity: 0;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
+}
+
+.game-icon {
+  width: 5.5rem;
+  height: 5.5rem;
+  background-color: var(--card);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.game-icon::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.game-icon:hover::before {
+  transform: translateX(100%);
+}
+
+.game-icon:hover {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  border-color: var(--primary);
+}
+
+.game-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+}
+
+.game-icon:hover img {
+  transform: scale(1.05);
+}
+
+.game-icon svg {
+  width: 3.25rem;
+  height: 3.25rem;
+  color: var(--muted-foreground);
+}
+
+.header-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--foreground), var(--muted-foreground));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.game-container {
+  position: relative;
+  background-color: #000000;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
+  border: 1px solid var(--border);
+}
+
+.game-display {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 4rem 2rem;
+  position: relative;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+.game-logo-large {
+  width: 10rem;
+  height: 10rem;
+  background-color: var(--card);
+  border-radius: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 2px solid var(--border);
+}
+
+.game-logo-large::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.game-logo-large:hover::after {
+  transform: translateX(100%);
+}
+
+.game-logo-large:hover {
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border-color: var(--primary);
+}
+
+.game-logo-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+}
+
+.game-logo-large:hover img {
+  transform: scale(1.05);
+}
+
+.game-logo-large svg {
+  width: 6.5rem;
+  height: 6.5rem;
+  color: var(--muted-foreground);
+}
+
+.game-details {
+  text-align: center;
+  max-width: 600px;
+  position: relative;
+  z-index: 1;
+}
+
+.game-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--foreground), var(--muted-foreground));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: slideUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms backwards;
+}
+
+.game-description {
+  font-size: 1.0625rem;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+  animation: slideUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 400ms backwards;
+}
+
+.play-button {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: white;
+  border: none;
+  padding: 1.25rem 4rem;
+  border-radius: 1.125rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+  font-family: "Geist", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.3);
+  animation: slideUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 500ms backwards;
+  overflow: hidden;
+}
+
+.play-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 400ms ease;
+}
+
+.play-button:hover::before {
+  transform: translateX(100%);
+}
+
+.play-button:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(6, 182, 212, 0.5);
+}
+
+.play-button:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.play-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 300ms ease;
+}
+
+.play-button:hover svg {
+  transform: translateX(2px);
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+  animation: fadeIn 300ms ease-out;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.game-display iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  animation: fadeIn 400ms ease-out;
+}
+
+.toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 20;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: toolbarSlideUp 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 400ms forwards;
+}
+
+@keyframes toolbarSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tool-button,
+.control-button {
+  background-color: rgba(38, 38, 38, 0.95);
+  border: 1px solid var(--border);
+  width: 3rem;
+  height: 3rem;
+  border-radius: calc(var(--radius) * 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.tool-button:hover,
+.control-button:hover {
+  background-color: var(--secondary);
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.tool-button:active,
+.control-button:active {
+  transform: translateY(-1px);
+}
+
+.control-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.control-button:disabled:hover {
+  background-color: rgba(38, 38, 38, 0.95);
+  transform: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.tool-button svg,
+.control-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--foreground);
+  transition: all 300ms ease;
+}
+
+.tool-button:hover svg,
+.control-button:hover svg {
+  transform: scale(1.15);
+  color: var(--primary);
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.control-button {
+  opacity: 0;
+  animation: fadeInScale 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.control-button:nth-child(1) { animation-delay: 500ms; }
+.control-button:nth-child(2) { animation-delay: 600ms; }
+.control-button:nth-child(3) { animation-delay: 700ms; }
+.control-button:nth-child(4) { animation-delay: 800ms; }
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  padding: 0.5rem 0.75rem;
+  border-radius: calc(var(--radius) * 0.6);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  border: 1px solid var(--border);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--popover);
+}
+
+.tool-button:hover .tooltip,
+.control-button:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.similar-section {
+  margin-top: 3rem;
+  opacity: 0;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms forwards;
+}
+
+.similar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.similar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--foreground);
+}
+
+.similar-title svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.similar-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.similar-nav-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--foreground);
+}
+
+.similar-nav-btn:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
+.similar-nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.similar-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 1rem;
+}
+
+.similar-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.similar-card {
+  flex: 0 0 auto;
+  width: 200px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.similar-card-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.similar-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.similar-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  border-color: var(--primary);
+}
+
+.similar-card:hover img {
+  transform: scale(1.15);
+}
+
+.similar-card-info {
+  padding: 12px;
+  background: var(--card);
+}
+
+.similar-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.similar-card-author {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.similar-card-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+  pointer-events: none;
+}
+
+.similar-card:hover .similar-card-shine {
+  transform: translateX(100%);
+}
+
+@media (max-width: 1024px) {
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+
+  .carousel-card.wide {
+    width: 240px;
+    height: 150px;
+  }
+
+  .carousel-card.square {
+    width: 150px;
+    height: 150px;
+  }
+
+  .similar-card {
+    width: 150px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .toast-container {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+  }
+
+  .toast {
+    min-width: auto;
+  }
+
+  .search-input {
+    padding: 14px 90px 14px 16px;
+    font-size: 14px;
+  }
+
+  .search-icon {
+    right: 50px;
+  }
+
+  .carousel-controls,
+  .similar-controls {
+    display: none;
+  }
+
+  .breadcrumb-current {
+    max-width: 120px;
+  }
+
+  .player-header {
+    gap: 1rem;
+  }
+
+  .game-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .game-icon svg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .game-display {
+    min-height: 60vh;
+    padding: 3rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .game-logo-large {
+    width: 8rem;
+    height: 8rem;
+  }
+
+  .game-logo-large svg {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .game-title {
+    font-size: 2rem;
+  }
+
+  .game-description {
+    font-size: 0.9375rem;
+  }
+
+  .play-button {
+    padding: 1rem 3rem;
+    font-size: 1rem;
+  }
+
+  .toolbar {
+    padding: 1rem;
+  }
+
+  .controls {
+    gap: 0.5rem;
+  }
+
+  .tool-button,
+  .control-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .tool-button svg,
+  .control-button svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
     </style>
   </head>
   <body>
@@ -1589,7 +1920,7 @@
             <span>Home</span>
           </a>
           <a
-            href="/#games"
+            href="/games"
             data-route="games"
             class="nav-item active"
             data-page="games"
@@ -1597,11 +1928,11 @@
             <i data-lucide="gamepad-2"></i>
             Games
           </a>
-          <a href="/#ai" class="nav-item" data-page="ai" data-route="ai">
+          <a href="/ai" class="nav-item" data-page="ai">
             <i data-lucide="cpu"></i>
             <span>AI</span>
           </a>
-          <a href="/#chat" class="nav-item" data-page="chat" data-route="chat">
+          <a href="/chat" class="nav-item" data-page="chat" >
             <i data-lucide="message-square"></i>
             <span>Chat</span>
           </a>
@@ -1620,9 +1951,8 @@
           </div>
           <div class="footer-actions">
             <a
-              href="/#settings"
+              href="/settings"
               class="footer-btn"
-              data-route="settings"
               aria-label="Settings"
             >
               <i data-lucide="settings"></i>
@@ -1653,239 +1983,194 @@
           </div>
         </div>
       </aside>
+<main class="content-wrapper">
+  <div class="content-area">
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2" />
+        <path d="M9 3v18" />
+      </svg>
+    </button>
 
-      <main class="content-wrapper">
-        <div class="content-area">
-          <button
-            class="sidebar-toggle"
-            id="sidebarToggle"
-            aria-label="Toggle sidebar"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="M9 3v18" />
-            </svg>
+    <div class="games-content">
+      <div class="browse-view" id="browseView">
+        <div class="search-wrapper">
+          <input type="text" class="search-input" placeholder="Search games..." id="search" />
+          <span class="search-icon">
+            <i data-lucide="search"></i>
+          </span>
+          <button class="search-clear" id="searchClear" style="display: none;">
+            <i data-lucide="x"></i>
           </button>
+        </div>
 
-          <div class="games-content">
-            <div class="browse-view" id="browseView">
-              <div class="search-wrapper">
-                <input
-                  type="text"
-                  class="search-input"
-                  placeholder="Search games..."
-                  id="search"
-                />
-                <span class="search-icon">
-                  <i data-lucide="search"></i>
-                </span>
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i data-lucide="sparkles"></i>
+              Chosen For You
+            </h2>
+            <div class="carousel-controls">
+              <button class="carousel-nav-btn prev" id="carouselPrev">
+                <i data-lucide="chevron-left"></i>
+              </button>
+              <button class="carousel-nav-btn next" id="carouselNext">
+                <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+          <div class="carousel-container">
+            <div class="carousel-track" id="carousel">
+              <div class="skeleton-card wide"></div>
+              <div class="skeleton-card square"></div>
+              <div class="skeleton-card square"></div>
+              <div class="skeleton-card wide"></div>
+            </div>
+          </div>
+          <div class="carousel-progress">
+            <div class="carousel-progress-bar" id="carouselProgress"></div>
+          </div>
+        </section>
+
+        <section class="section" id="featuredSection">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i data-lucide="star"></i>
+              Featured Games
+            </h2>
+            <span class="game-count" id="featuredCount">
+              <div class="skeleton-text"></div>
+            </span>
+          </div>
+          <div class="games-grid" id="featuredGrid">
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i data-lucide="grid-3x3"></i>
+              All Games
+            </h2>
+            <span class="game-count" id="allCount">
+              <div class="skeleton-text"></div>
+            </span>
+          </div>
+          <div class="games-grid" id="allGrid">
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+            <div class="skeleton-card square"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="player-view" id="playerView">
+        <div class="breadcrumb-bar">
+          <div class="breadcrumb" id="backBreadcrumb">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" x2="10" y1="11" y2="11" />
+              <line x1="8" x2="8" y1="9" y2="13" />
+              <line x1="15" x2="15.01" y1="12" y2="12" />
+              <line x1="18" x2="18.01" y1="10" y2="10" />
+              <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" />
+            </svg>
+            <span class="breadcrumb-text">Games</span>
+            <span class="breadcrumb-separator">›</span>
+            <span class="breadcrumb-text breadcrumb-current" id="breadcrumbGameName"></span>
+          </div>
+        </div>
+
+        <div class="player-container">
+          <div class="player-header">
+            <div class="game-icon" id="gameIcon"></div>
+            <div class="header-content">
+              <h1 id="playerTitle"></h1>
+            </div>
+          </div>
+
+          <div class="game-container">
+            <div class="game-display" id="gameDisplay">
+              <div class="game-logo-large" id="gameLogo"></div>
+              <div class="game-details">
+                <h2 class="game-title" id="gameTitle"></h2>
+                <p class="game-description" id="gameDescription"></p>
               </div>
-
-              <section class="section">
-                <div class="section-header">
-                  <h2 class="section-title">
-                    <i data-lucide="sparkles"></i>
-                    Chosen For You
-                  </h2>
-                </div>
-                <div class="carousel-container">
-                  <div class="carousel-track" id="carousel"></div>
-                  <button class="carousel-nav prev" id="carouselPrev">
-                    <i data-lucide="chevron-left"></i>
-                  </button>
-                  <button class="carousel-nav next" id="carouselNext">
-                    <i data-lucide="chevron-right"></i>
-                  </button>
-                </div>
-              </section>
-
-              <section class="section" id="featuredSection">
-                <div class="section-header">
-                  <h2 class="section-title">
-                    <i data-lucide="star"></i>
-                    Featured Games
-                  </h2>
-                  <span class="game-count" id="featuredCount"></span>
-                </div>
-                <div class="games-grid" id="featuredGrid"></div>
-              </section>
-
-              <section class="section">
-                <div class="section-header">
-                  <h2 class="section-title">
-                    <i data-lucide="grid-3x3"></i>
-                    All Games
-                  </h2>
-                  <span class="game-count" id="allCount"></span>
-                </div>
-                <div class="games-grid" id="allGrid"></div>
-              </section>
+              <button class="play-button" id="playBtn">
+                <i data-lucide="play"></i>
+                <span>Play Now</span>
+              </button>
             </div>
 
-            <div class="player-view" id="playerView">
-              <div class="breadcrumb-bar">
-                <div class="breadcrumb" id="backBreadcrumb">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.9"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <line x1="6" x2="10" y1="11" y2="11" />
-                    <line x1="8" x2="8" y1="9" y2="13" />
-                    <line x1="15" x2="15.01" y1="12" y2="12" />
-                    <line x1="18" x2="18.01" y1="10" y2="10" />
-                    <path
-                      d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"
-                    />
+            <div class="toolbar">
+              <button class="tool-button" id="externalBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" x2="21" y1="14" y2="3" />
+                </svg>
+                <span class="tooltip">Open External</span>
+              </button>
+
+              <div class="controls">
+                <button class="control-button" id="downloadBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" x2="12" y1="15" y2="3" />
                   </svg>
-                  <span class="breadcrumb-text">Games</span>
-                  <span class="breadcrumb-separator">›</span>
-                  <span
-                    class="breadcrumb-text breadcrumb-current"
-                    id="breadcrumbGameName"
-                  ></span>
-                </div>
-              </div>
-
-              <div class="player-container">
-                <div class="player-header">
-                  <div class="game-icon" id="gameIcon"></div>
-                  <div class="header-content">
-                    <h1 id="playerTitle"></h1>
-                  </div>
-                </div>
-
-                <div class="game-container">
-                  <div class="game-display" id="gameDisplay">
-                    <div class="game-logo-large" id="gameLogo"></div>
-                    <div class="game-details">
-                      <h2 class="game-title" id="gameTitle"></h2>
-                      <p class="game-description" id="gameDescription"></p>
-                    </div>
-                    <button class="play-button" id="playBtn">
-                      <i data-lucide="play"></i>
-                      <span>Play Now</span>
-                    </button>
-                  </div>
-
-                  <div class="toolbar">
-                    <button class="tool-button" id="externalBtn">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path
-                          d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-                        />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" x2="21" y1="14" y2="3" />
-                      </svg>
-                      <span class="tooltip">Open External</span>
-                    </button>
-
-                    <div class="controls">
-                      <button class="control-button" id="downloadBtn">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" x2="12" y1="15" y2="3" />
-                        </svg>
-                        <span class="tooltip">Download</span>
-                      </button>
-                      <button class="control-button" id="reloadBtn">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path
-                            d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-                          />
-                          <path d="M3 3v5h5" />
-                          <path
-                            d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
-                          />
-                          <path d="M16 16h5v5" />
-                        </svg>
-                        <span class="tooltip">Reload</span>
-                      </button>
-                      <button
-                        class="control-button"
-                        id="fullscreenBtn"
-                        disabled
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-                          <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
-                          <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-                          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-                        </svg>
-                        <span class="tooltip">Fullscreen</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="similar-section">
-                  <h3 class="similar-title">
-                    <i data-lucide="gamepad-2"></i>
-                    Similar Games
-                  </h3>
-                  <div class="similar-carousel" id="similarGames"></div>
-                </div>
+                  <span class="tooltip">Download</span>
+                </button>
+                <button class="control-button" id="reloadBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                    <path d="M16 16h5v5" />
+                  </svg>
+                  <span class="tooltip">Reload</span>
+                </button>
+                <button class="control-button" id="fullscreenBtn" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                    <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+                    <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+                    <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                  </svg>
+                  <span class="tooltip">Fullscreen</span>
+                </button>
               </div>
             </div>
           </div>
+
+          <div class="similar-section">
+            <div class="similar-header">
+              <h3 class="similar-title">
+                <i data-lucide="gamepad-2"></i>
+                Similar Games
+              </h3>
+              <div class="similar-controls">
+                <button class="similar-nav-btn prev" id="similarPrev">
+                  <i data-lucide="chevron-left"></i>
+                </button>
+                <button class="similar-nav-btn next" id="similarNext">
+                  <i data-lucide="chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            <div class="similar-carousel" id="similarGames"></div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
+  </div>
+</main>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -2109,599 +2394,546 @@
       setInterval(updatePing, 5000);
       setInterval(updateTooltipText, 1000);
 
-      function showToast(title, message, type = "info") {
-        const container = document.getElementById("toastContainer");
-        const toast = document.createElement("div");
-        toast.className = `toast ${type}`;
 
-        const iconMap = {
-          success: "check-circle",
-          error: "x-circle",
-          info: "info",
-        };
+// Keep only this version with the progress bar and close button:
+const api = {
+  COVER_URL: "https://cdn.jsdelivr.net/gh/gn-math/covers@main",
+  HTML_URL: "https://cdn.jsdelivr.net/gh/gn-math/html@main",
+  ZONES_URLS: [
+    "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json",
+    "https://raw.githubusercontent.com/gn-math/assets/main/zones.json",
+  ],
+};
 
-        toast.innerHTML = `
+const CONFIG = {
+  CAROUSEL_SIZE: 20,
+  SIMILAR_GAMES_COUNT: 12,
+  TOAST_DURATION: 4000,
+};
+
+function showToast(title, message, type = "info") {
+  const container = document.getElementById("toastContainer");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+
+  const iconMap = {
+    success: "check-circle",
+    error: "x-circle",
+    info: "info",
+  };
+
+  toast.innerHTML = `
+    <div class="toast-progress ${type}"></div>
     <i class="toast-icon" data-lucide="${iconMap[type]}"></i>
     <div class="toast-content">
-        <div class="toast-title">${title}</div>
-        <div class="toast-message">${message}</div>
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
     </div>
-`;
+    <button class="toast-close">
+      <i data-lucide="x"></i>
+    </button>
+  `;
 
-        container.appendChild(toast);
+  container.appendChild(toast);
+  lucide.createIcons();
+
+  const progressBar = toast.querySelector(".toast-progress");
+  progressBar.style.animation = `toastProgress ${CONFIG.TOAST_DURATION}ms linear`;
+
+  const closeBtn = toast.querySelector(".toast-close");
+  closeBtn.addEventListener("click", () => {
+    toast.classList.add("removing");
+    setTimeout(() => toast.remove(), 300);
+  });
+
+  setTimeout(() => {
+    toast.classList.add("removing");
+    setTimeout(() => toast.remove(), 300);
+  }, CONFIG.TOAST_DURATION);
+}
+
+
+const app = {
+  games: [],
+  currentGame: null,
+  activeFilter: "all",
+  isPlaying: false,
+  carouselScrollPos: 0,
+  similarScrollPos: 0,
+
+  async init() {
+    await this.loadGames();
+    this.setupSearch();
+    this.setupEventListeners();
+    this.setupCarouselObserver();
+    lucide.createIcons();
+  },
+
+  setupEventListeners() {
+    document.getElementById("backBreadcrumb").addEventListener("click", () => {
+      this.showBrowse();
+    });
+
+    const carouselPrev = document.getElementById("carouselPrev");
+    const carouselNext = document.getElementById("carouselNext");
+
+    carouselPrev.addEventListener("click", () => this.scrollCarousel(-1));
+    carouselNext.addEventListener("click", () => this.scrollCarousel(1));
+
+    const similarPrev = document.getElementById("similarPrev");
+    const similarNext = document.getElementById("similarNext");
+
+    similarPrev.addEventListener("click", () => this.scrollSimilar(-1));
+    similarNext.addEventListener("click", () => this.scrollSimilar(1));
+
+    const searchClear = document.getElementById("searchClear");
+    searchClear.addEventListener("click", () => {
+      document.getElementById("search").value = "";
+      searchClear.style.display = "none";
+      const event = new Event("input");
+      document.getElementById("search").dispatchEvent(event);
+    });
+  },
+
+  setupCarouselObserver() {
+    const carousel = document.getElementById("carousel");
+    const progressBar = document.getElementById("carouselProgress");
+
+    carousel.addEventListener("scroll", () => {
+      const scrollWidth = carousel.scrollWidth - carousel.clientWidth;
+      const scrollPos = carousel.scrollLeft;
+      const progress = (scrollPos / scrollWidth) * 100;
+      progressBar.style.width = `${progress}%`;
+    });
+  },
+
+  async loadGames() {
+    for (const url of api.ZONES_URLS) {
+      try {
+        const res = await fetch(url, { cache: "no-cache" });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            this.games = data.map((game) => ({
+              ...game,
+              cover: game.cover.replace("{COVER_URL}", api.COVER_URL),
+              url: game.url ? game.url.replace("{HTML_URL}", api.HTML_URL) : game.url,
+            }));
+            this.render();
+            setTimeout(() => lucide.createIcons(), 100);
+            showToast("Games Loaded", `${this.games.length} games available`, "success");
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load from:", url, err);
+      }
+    }
+    showToast("Error", "Failed to load games", "error");
+  },
+
+  render() {
+    this.renderCarousel();
+    this.renderFeatured();
+    this.renderAll();
+  },
+
+  renderCarousel() {
+    const shuffled = [...this.games].sort(() => Math.random() - 0.5).slice(0, CONFIG.CAROUSEL_SIZE);
+    const carousel = document.getElementById("carousel");
+
+    carousel.innerHTML = shuffled.map((game, i) => {
+      const isWide = i % 3 === 0;
+      return `
+        <div class="carousel-card ${isWide ? "wide" : "square"}" data-id="${game.id}">
+          <div class="carousel-image-wrapper">
+            <img src="${game.cover}" alt="${game.name}" loading="eager">
+          </div>
+          <div class="carousel-overlay">
+            <div class="carousel-name">${game.name}</div>
+            <div class="carousel-meta">by ${game.author || "Unknown"}</div>
+          </div>
+          <div class="carousel-shine"></div>
+        </div>
+      `;
+    }).join("");
+
+    carousel.querySelectorAll(".carousel-card").forEach((card) => {
+      card.addEventListener("click", () => this.showPlayer(parseInt(card.dataset.id, 10)));
+    });
+  },
+
+  renderFeatured() {
+    const featured = this.games.filter((g) => g.featured);
+    this.renderGrid("featuredGrid", featured);
+    document.getElementById("featuredCount").textContent = `${featured.length} games`;
+  },
+
+  renderAll() {
+    this.renderGrid("allGrid", this.games);
+    document.getElementById("allCount").textContent = `${this.games.length} games`;
+  },
+
+  renderGrid(containerId, items) {
+    const grid = document.getElementById(containerId);
+    grid.innerHTML = items.map((game) => `
+      <div class="game-card" data-id="${game.id}">
+        <div class="game-card-image-wrapper">
+          <img src="${game.cover}" alt="${game.name}" loading="lazy">
+        </div>
+        <div class="game-info">
+          <div class="game-name">${game.name}</div>
+          <div class="game-author-text">by ${game.author || "Unknown"}</div>
+        </div>
+        <div class="game-card-shine"></div>
+      </div>
+    `).join("");
+
+    grid.querySelectorAll(".game-card").forEach((card) => {
+      card.addEventListener("click", () => this.showPlayer(parseInt(card.dataset.id, 10), items));
+    });
+  },
+
+  setupSearch() {
+    const input = document.getElementById("search");
+    const searchClear = document.getElementById("searchClear");
+    const browseView = document.getElementById("browseView");
+    const carouselSection = document.querySelector(".section");
+    const featuredSection = document.getElementById("featuredSection");
+    const allSection = document.getElementById("allGrid").closest(".section");
+    let searchGrid = null;
+    let noResultsNode = null;
+
+    input.addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase().trim();
+
+      searchClear.style.display = query ? "flex" : "none";
+
+      if (!searchGrid) {
+        const searchSection = document.createElement("section");
+        searchSection.className = "section search-section";
+        searchSection.innerHTML = `
+          <div class="section-header">
+            <h2 class="section-title">
+              <i data-lucide="search"></i>
+              Search Results
+            </h2>
+            <span class="game-count" id="searchCount">0 games</span>
+          </div>
+          <div class="games-grid" id="searchGrid"></div>
+        `;
+        browseView.appendChild(searchSection);
+        searchGrid = searchSection;
         lucide.createIcons();
-
-        setTimeout(() => {
-          toast.classList.add("removing");
-          setTimeout(() => {
-            toast.remove();
-          }, 300);
-        }, 3000);
       }
 
-      const api = {
-        COVER_URL: "https://cdn.jsdelivr.net/gh/gn-math/covers@main",
-        HTML_URL: "https://cdn.jsdelivr.net/gh/gn-math/html@main",
-        ZONES_URLS: [
-          "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json",
-          "https://raw.githubusercontent.com/gn-math/assets/main/zones.json",
-        ],
-      };
-
-      const CONFIG = {
-        CAROUSEL_SIZE: 20,
-        SIMILAR_GAMES_COUNT: 8,
-      };
-
-      const app = {
-        games: [],
-        currentGame: null,
-        activeFilter: "all",
-        isPlaying: false,
-
-        async init() {
-          await this.loadGames();
-          this.setupSearch();
-          this.setupEventListeners();
-          lucide.createIcons();
-        },
-
-        setupEventListeners() {
-          document
-            .getElementById("backBreadcrumb")
-            .addEventListener("click", () => {
-              this.showBrowse();
-            });
-
-          document
-            .getElementById("carouselPrev")
-            .addEventListener("click", () => {
-              this.scrollCarousel(-1);
-            });
-
-          document
-            .getElementById("carouselNext")
-            .addEventListener("click", () => {
-              this.scrollCarousel(1);
-            });
-        },
-
-        async loadGames() {
-          for (const url of api.ZONES_URLS) {
-            try {
-              const res = await fetch(url, { cache: "no-cache" });
-              if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data) && data.length > 0) {
-                  this.games = data.map((game) => ({
-                    ...game,
-                    cover: game.cover.replace("{COVER_URL}", api.COVER_URL),
-                    url: game.url
-                      ? game.url.replace("{HTML_URL}", api.HTML_URL)
-                      : game.url,
-                  }));
-                  this.render();
-                  setTimeout(() => {
-                    lucide.createIcons();
-                  }, 100);
-                  showToast(
-                    "Games Loaded",
-                    `${this.games.length} games available`,
-                    "success"
-                  );
-                  return;
-                }
-              }
-            } catch (err) {
-              console.error("Failed to load from:", url, err);
-            }
-          }
-          showToast("Error", "Failed to load games", "error");
-          console.error("All API endpoints failed to load");
-        },
-
-        render() {
-          this.renderCarousel();
-          this.renderFeatured();
-          this.renderAll();
-        },
-
-        renderCarousel() {
-          const shuffled = [...this.games]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, CONFIG.CAROUSEL_SIZE);
-          const carousel = document.getElementById("carousel");
-          carousel.innerHTML = shuffled
-            .map((game, i) => {
-              const isWide = i % 3 === 0;
-              return `
-            <div class="carousel-card ${isWide ? "wide" : "square"}" data-id="${
-                game.id
-              }">
-                <img src="${game.cover}" alt="${game.name}" loading="eager">
-                <div class="carousel-overlay">
-                    <div class="carousel-name">${game.name}</div>
-                    <div class="carousel-meta">by ${
-                      game.author || "Unknown"
-                    }</div>
-                </div>
-            </div>
+      if (!noResultsNode) {
+        noResultsNode = document.createElement("div");
+        noResultsNode.className = "no-results";
+        noResultsNode.innerHTML = `
+          <i data-lucide="inbox"></i>
+          <div class="no-results-title">No games found</div>
+          <div class="no-results-text">Try adjusting your search terms</div>
         `;
-            })
-            .join("");
+        browseView.appendChild(noResultsNode);
+        lucide.createIcons();
+      }
 
-          carousel.querySelectorAll(".carousel-card").forEach((card) => {
-            card.addEventListener("click", () =>
-              this.showPlayer(parseInt(card.dataset.id, 10))
-            );
-          });
-        },
+      if (!query) {
+        searchGrid.style.display = "none";
+        noResultsNode.style.display = "none";
+        carouselSection.style.display = "";
+        featuredSection.style.display = "";
+        allSection.style.display = "";
+        return;
+      }
 
-        renderFeatured() {
-          const featured = this.games.filter((g) => g.featured);
-          this.renderGrid("featuredGrid", featured);
-          document.getElementById(
-            "featuredCount"
-          ).textContent = `${featured.length} games`;
-        },
+      carouselSection.style.display = "none";
+      featuredSection.style.display = "none";
+      allSection.style.display = "none";
+      searchGrid.style.display = "";
 
-        renderAll() {
-          this.renderGrid("allGrid", this.games);
-          document.getElementById(
-            "allCount"
-          ).textContent = `${this.games.length} games`;
-        },
+      const filtered = this.games.filter((g) =>
+        g.name.toLowerCase().includes(query) || g.author?.toLowerCase().includes(query)
+      );
 
-        renderGrid(containerId, items) {
-          const grid = document.getElementById(containerId);
-          grid.innerHTML = items
-            .map(
-              (game) => `
-            <div class="game-card" data-id="${game.id}">
-                <img src="${game.cover}" alt="${game.name}" loading="lazy">
-                <div class="game-info">
-                    <div class="game-name">${game.name}</div>
-                    <div class="game-author-text">by ${
-                      game.author || "Unknown"
-                    }</div>
-                </div>
-            </div>
-        `
-            )
-            .join("");
+      const gridEl = searchGrid.querySelector("#searchGrid");
+      const countEl = searchGrid.querySelector("#searchCount");
 
-          grid.querySelectorAll(".game-card").forEach((card) => {
-            card.addEventListener("click", () =>
-              this.showPlayer(parseInt(card.dataset.id, 10), items)
-            );
-          });
-        },
+      if (filtered.length === 0) {
+        gridEl.innerHTML = "";
+        searchGrid.style.display = "none";
+        noResultsNode.style.display = "flex";
+        return;
+      }
 
-        filterGames(type) {
-          const filtered =
-            type === "featured"
-              ? this.games.filter((g) => g.featured)
-              : this.games;
+      noResultsNode.style.display = "none";
+      countEl.textContent = `${filtered.length} ${filtered.length === 1 ? "game" : "games"}`;
 
-          this.renderGrid("allGrid", filtered);
-          document.getElementById(
-            "allCount"
-          ).textContent = `${filtered.length} games`;
-        },
+      gridEl.innerHTML = filtered.map((game) => `
+        <div class="game-card" data-id="${game.id}">
+          <div class="game-card-image-wrapper">
+            <img src="${game.cover}" alt="${game.name}" loading="lazy">
+          </div>
+          <div class="game-info">
+            <div class="game-name">${game.name}</div>
+            <div class="game-author-text">by ${game.author || "Unknown"}</div>
+          </div>
+          <div class="game-card-shine"></div>
+        </div>
+      `).join("");
 
-        setupSearch() {
-          const input = document.getElementById("search");
-          const browseView = document.getElementById("browseView");
-          const carouselContainer = document.querySelector(
-            ".carousel-container"
-          );
-          const featuredSection = document.getElementById("featuredSection");
-          const allSection = document
-            .getElementById("allGrid")
-            .closest(".section");
-          let searchGrid = null;
-          let noResultsNode = null;
+      gridEl.querySelectorAll(".game-card").forEach((card) => {
+        card.addEventListener("click", () => this.showPlayer(parseInt(card.dataset.id, 10), filtered));
+      });
+    });
+  },
 
-          input.addEventListener("input", (e) => {
-            const query = e.target.value.toLowerCase().trim();
+  scrollCarousel(direction) {
+    const carousel = document.getElementById("carousel");
+    const card = carousel.querySelector(".carousel-card");
+    if (card) {
+      const width = card.offsetWidth + 20;
+      carousel.scrollBy({ left: direction * width * 2, behavior: "smooth" });
+    }
+  },
 
-            if (!searchGrid) {
-              searchGrid = document.createElement("div");
-              searchGrid.id = "searchGrid";
-              searchGrid.className = "games-grid";
-              browseView.appendChild(searchGrid);
-            }
-            if (!noResultsNode) {
-              noResultsNode = document.createElement("div");
-              noResultsNode.id = "searchNoResults";
-              noResultsNode.style.padding = "24px";
-              noResultsNode.style.color = "var(--muted-foreground)";
-              noResultsNode.style.textAlign = "center";
-              noResultsNode.textContent = "No results found.";
-              browseView.appendChild(noResultsNode);
-            }
+  scrollSimilar(direction) {
+    const similar = document.getElementById("similarGames");
+    const card = similar.querySelector(".similar-card");
+    if (card) {
+      const width = card.offsetWidth + 20;
+      similar.scrollBy({ left: direction * width * 3, behavior: "smooth" });
+    }
+  },
+showPlayer(id, contextGames = null) {
+  const game = this.games.find((g) => g.id === id);
+  if (!game) {
+    showToast("Error", "Game not found", "error");
+    return;
+  }
 
-            if (!query) {
-              searchGrid.style.display = "none";
-              noResultsNode.style.display = "none";
-              if (carouselContainer) carouselContainer.style.display = "";
-              if (featuredSection) featuredSection.style.display = "";
-              if (allSection) allSection.style.display = "";
-              return this.filterGames(this.activeFilter);
-            }
+  this.currentGame = game;
+  this.isPlaying = false;
 
-            if (carouselContainer) carouselContainer.style.display = "none";
-            if (featuredSection) featuredSection.style.display = "none";
-            if (allSection) allSection.style.display = "none";
-            searchGrid.style.display = "grid";
+  // Hide browse view and show player view
+  const browseView = document.getElementById("browseView");
+  const playerView = document.getElementById("playerView");
 
-            const filtered = this.games.filter(
-              (g) =>
-                g.name.toLowerCase().includes(query) ||
-                g.author?.toLowerCase().includes(query)
-            );
+  browseView.classList.add("hidden");
+  playerView.classList.add("active");
 
-            if (filtered.length === 0) {
-              searchGrid.innerHTML = "";
-              noResultsNode.style.display = "";
-              return;
-            } else {
-              noResultsNode.style.display = "none";
-            }
+  // Update breadcrumb and title
+  document.getElementById("breadcrumbGameName").textContent = game.name;
+  document.getElementById("playerTitle").textContent = game.name;
 
-            searchGrid.innerHTML = filtered
-              .map(
-                (game) => `
-                <div class="game-card" data-id="${game.id}">
-                    <img src="${game.cover}" alt="${game.name}" loading="lazy">
-                    <div class="game-info">
-                        <div class="game-name">${game.name}</div>
-                        <div class="game-author-text">by ${
-                          game.author || "Unknown"
-                        }</div>
-                    </div>
-                </div>
-            `
-              )
-              .join("");
+  // Update game icon
+  const gameIcon = document.getElementById("gameIcon");
+  gameIcon.innerHTML = `<img src="${game.cover}" alt="${game.name}">`;
 
-            searchGrid.querySelectorAll(".game-card").forEach((card) => {
-              card.addEventListener("click", () =>
-                this.showPlayer(parseInt(card.dataset.id, 10), filtered)
-              );
-            });
-          });
-        },
+  // Update game display
+  const gameDisplay = document.getElementById("gameDisplay");
+  gameDisplay.innerHTML = `
+    <div class="game-logo-large">
+      <img src="${game.cover}" alt="${game.name}">
+    </div>
+    <div class="game-details">
+      <h2 class="game-title">${game.name}</h2>
+      <p class="game-description">${game.description || "Click Play Now to start playing this game!"}</p>
+    </div>
+    <button class="play-button" id="playBtn">
+      <i data-lucide="play"></i>
+      <span>Play Now</span>
+    </button>
+  `;
 
-        scrollCarousel(direction) {
-          const carousel = document.getElementById("carousel");
-          const card = carousel.querySelector(".carousel-card");
-          if (card) {
-            const width = card.offsetWidth + 20;
-            carousel.scrollBy({
-              left: direction * width * 2,
-              behavior: "smooth",
-            });
+  // Setup play button
+  const playBtn = document.getElementById("playBtn");
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      if (this.currentGame) this.playGame(this.currentGame);
+    });
+  }
+
+  this.setupPlayerControls();
+  this.renderSimilarGames(contextGames || this.games);
+  lucide.createIcons();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+},
+  setupPlayerControls() {
+    document.getElementById("fullscreenBtn").disabled = true;
+
+    document.getElementById("fullscreenBtn").onclick = () => this.fullscreen();
+    document.getElementById("downloadBtn").onclick = () => this.download();
+    document.getElementById("reloadBtn").onclick = () => {
+      if (this.isPlaying && this.currentGame) {
+        this.playGame(this.currentGame);
+        showToast("Reloading", "Game is reloading...", "info");
+      }
+    };
+
+    document.getElementById("externalBtn").onclick = async () => {
+      if (this.currentGame && this.currentGame.url) {
+        try {
+          const response = await fetch(this.currentGame.url + "?t=" + Date.now());
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const html = await response.text();
+          const newWindow = window.open("about:blank", "_blank");
+
+          if (newWindow) {
+            setTimeout(() => {
+              newWindow.document.open();
+              newWindow.document.write(html);
+              newWindow.document.close();
+            }, 50);
+            showToast("Opening Game", "Game opened in new window", "success");
+          } else {
+            showToast("Blocked", "Please allow popups for this site", "error");
           }
-        },
+        } catch (err) {
+          showToast("Error", "Failed to open game externally", "error");
+        }
+      }
+    };
+  },
 
-        showPlayer(id, contextGames = null) {
-          const game = this.games.find((g) => g.id === id);
-          if (!game) return;
+  renderSimilarGames(source) {
+    if (!this.currentGame) return;
+    const container = document.getElementById("similarGames");
+    const src = Array.isArray(source) ? source : this.games || [];
+    const similar = src.filter((g) => g.id !== this.currentGame.id)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, CONFIG.SIMILAR_GAMES_COUNT);
 
-          this.currentGame = game;
-          this.isPlaying = false;
-
-          document.getElementById("browseView").classList.add("hidden");
-          const playerView = document.getElementById("playerView");
-          playerView.classList.add("active");
-
-          document.getElementById("breadcrumbGameName").textContent = game.name;
-          document.getElementById("playerTitle").textContent = game.name;
-
-          const gameIcon = document.getElementById("gameIcon");
-          gameIcon.innerHTML = `<img src="${game.cover}" alt="${game.name}">`;
-
-          const gameDisplay = document.getElementById("gameDisplay");
-          gameDisplay.innerHTML = `
-        <div class="game-logo-large">
-            <img src="${game.cover}" alt="${game.name}">
+    container.innerHTML = similar.map((game) => `
+      <div class="similar-card" data-id="${game.id}">
+        <div class="similar-card-image-wrapper">
+          <img src="${game.cover}" alt="${game.name}" loading="lazy">
         </div>
-        <div class="game-details">
-            <h2 class="game-title">${game.name}</h2>
-            <p class="game-description">${
-              game.description || "Click Play Now to start playing this game!"
-            }</p>
+        <div class="similar-card-info">
+          <div class="similar-card-title">${game.name}</div>
+          <div class="similar-card-author">by ${game.author || "Unknown"}</div>
         </div>
-        <button class="play-button" id="playBtn">
-            <i data-lucide="play"></i>
-            <span>Play Now</span>
-        </button>
-    `;
+        <div class="similar-card-shine"></div>
+      </div>
+    `).join("");
 
-          document.getElementById("playBtn").addEventListener("click", () => {
-            if (this.currentGame) {
-              this.playGame(this.currentGame);
-            }
-          });
+    container.querySelectorAll(".similar-card").forEach((card) => {
+      card.addEventListener("click", () => this.showPlayer(parseInt(card.dataset.id, 10), src));
+    });
+  },
 
-          document.getElementById("fullscreenBtn").disabled = true;
-          document
-            .getElementById("fullscreenBtn")
-            .removeEventListener("click", this.fullscreen);
-          document
-            .getElementById("fullscreenBtn")
-            .addEventListener("click", () => this.fullscreen());
+  showBrowse() {
+    document.getElementById("playerView").classList.remove("active");
+    document.getElementById("browseView").classList.remove("hidden");
+    document.getElementById("gameDisplay").innerHTML = "";
+    this.currentGame = null;
+    this.isPlaying = false;
+    lucide.createIcons();
+  },
+async playGame(game) {
+  if (!game || !game.url) {
+    showToast("Error", "Game URL not available", "error");
+    return;
+  }
 
-          document
-            .getElementById("downloadBtn")
-            .removeEventListener("click", this.download);
-          document
-            .getElementById("downloadBtn")
-            .addEventListener("click", () => this.download());
+  const gameDisplay = document.getElementById("gameDisplay");
+  gameDisplay.innerHTML = `
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading game...</div>
+    </div>
+  `;
 
-          document
-            .getElementById("externalBtn")
-            .removeEventListener("click", this.openExternal);
-          document
-            .getElementById("externalBtn")
-            .addEventListener("click", async () => {
-              if (this.currentGame && this.currentGame.url) {
-                try {
-                  const response = await fetch(
-                    this.currentGame.url + "?t=" + Date.now()
-                  );
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  showToast("Loading", "Starting game...", "info");
 
-                  const html = await response.text();
+  try {
+    const response = await fetch(game.url + "?t=" + Date.now());
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-                  const newWindow = window.open("about:blank", "_blank");
-                  if (newWindow) {
-                    setTimeout(() => {
-                      newWindow.document.open();
-                      newWindow.document.write(html);
-                      newWindow.document.close();
+    const html = await response.text();
+    gameDisplay.innerHTML = "";
 
-                      setTimeout(() => {
-                        const scripts =
-                          newWindow.document.querySelectorAll("script");
-                        scripts.forEach((oldScript) => {
-                          const newScript =
-                            newWindow.document.createElement("script");
-                          Array.from(oldScript.attributes).forEach((attr) => {
-                            newScript.setAttribute(attr.name, attr.value);
-                          });
-                          if (oldScript.src) {
-                            newScript.src = oldScript.src;
-                          } else {
-                            newScript.textContent = oldScript.textContent;
-                          }
-                          oldScript.parentNode.replaceChild(
-                            newScript,
-                            oldScript
-                          );
-                        });
-                      }, 100);
-                    }, 50);
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "width: 100%; height: 100%; border: none; position: absolute; inset: 0;";
+    iframe.allow = "fullscreen; autoplay; encrypted-media";
 
-                    showToast(
-                      "Opening Game",
-                      "Game opened in new window",
-                      "success"
-                    );
-                  } else {
-                    showToast(
-                      "Blocked",
-                      "Please allow popups for this site",
-                      "error"
-                    );
-                  }
-                } catch (err) {
-                  console.error("Failed to open game:", err);
-                  showToast("Error", "Failed to open game externally", "error");
-                }
-              }
-            });
+    let hasLoaded = false;
 
-          document
-            .getElementById("reloadBtn")
-            .removeEventListener("click", this.reloadGame);
-          document.getElementById("reloadBtn").addEventListener("click", () => {
-            if (this.isPlaying && this.currentGame) {
-              this.playGame(this.currentGame);
-              showToast("Reloading", "Game is reloading...", "info");
-            }
-          });
+    iframe.onload = () => {
+      if (hasLoaded) return;
+      hasLoaded = true;
 
-          this.renderSimilarGames(contextGames || this.games);
+      setTimeout(() => {
+        try {
+          const iframeDoc = iframe.contentWindow.document;
+          iframeDoc.open();
+          iframeDoc.write(html);
+          iframeDoc.close();
+
+          document.getElementById("fullscreenBtn").disabled = false;
+          this.isPlaying = true;
+          showToast("Ready", "Game loaded successfully!", "success");
           lucide.createIcons();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        },
+        } catch (err) {
+          console.error("Failed to write to iframe:", err);
+        }
+      }, 100);
+    };
 
-        renderSimilarGames(source) {
-          if (!this.currentGame) return;
-          const container = document.getElementById("similarGames");
-          const src = Array.isArray(source) ? source : this.games || [];
-          const similar = src
-            .filter((g) => g.id !== this.currentGame.id)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, CONFIG.SIMILAR_GAMES_COUNT);
-
-          container.innerHTML = similar
-            .map(
-              (game) => `
-            <div class="similar-card" data-id="${game.id}">
-                <img src="${game.cover}" alt="${game.name}" loading="lazy">
-                <div class="similar-card-info">
-                    <div class="similar-card-title">${game.name}</div>
-                    <div class="similar-card-author">by ${
-                      game.author || "Unknown"
-                    }</div>
-                </div>
-            </div>
-        `
-            )
-            .join("");
-
-          container.querySelectorAll(".similar-card").forEach((card) => {
-            card.addEventListener("click", () =>
-              this.showPlayer(parseInt(card.dataset.id, 10), src)
-            );
-          });
-        },
-
-        showBrowse() {
-          document.getElementById("playerView").classList.remove("active");
-          document.getElementById("browseView").classList.remove("hidden");
-          const gameDisplay = document.getElementById("gameDisplay");
-          gameDisplay.innerHTML = "";
-          this.currentGame = null;
-          this.isPlaying = false;
-          lucide.createIcons();
-        },
-
-        async playGame(game) {
-          if (!game || !game.url) {
-            showToast("Error", "Game URL not available", "error");
-            return;
-          }
-
-          const gameDisplay = document.getElementById("gameDisplay");
-
-          gameDisplay.innerHTML = `
-        <div class="loading-overlay">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading game...</div>
-        </div>
+    gameDisplay.appendChild(iframe);
+  } catch (err) {
+    showToast("Error", "Failed to load game", "error");
+    gameDisplay.innerHTML = `
+      <div class="error-state">
+        <i data-lucide="alert-circle"></i>
+        <div class="error-title">Failed to load game</div>
+        <div class="error-text">Please try again later</div>
+      </div>
     `;
+    lucide.createIcons();
+  }
+},
+  fullscreen() {
+    const iframe = document.querySelector("#gameDisplay iframe");
+    if (iframe) {
+      if (iframe.requestFullscreen) iframe.requestFullscreen();
+      else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+      else if (iframe.mozRequestFullScreen) iframe.mozRequestFullScreen();
+      else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
+      showToast("Fullscreen", "Entering fullscreen mode", "success");
+    }
+  },
 
-          showToast("Loading", "Starting game...", "info");
+  async download() {
+    if (!this.currentGame || !this.currentGame.url) {
+      showToast("Error", "No game selected", "error");
+      return;
+    }
 
-          try {
-            const response = await fetch(game.url + "?t=" + Date.now());
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    try {
+      showToast("Downloading", "Preparing download...", "info");
+      const response = await fetch(this.currentGame.url + "?t=" + Date.now());
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const html = await response.text();
+      const html = await response.text();
+      const blob = new Blob([html], { type: "text/html" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${this.currentGame.name.replace(/[^a-z0-9]/gi, "_")}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      showToast("Success", "Game downloaded successfully", "success");
+    } catch (err) {
+      showToast("Error", "Failed to download game", "error");
+    }
+  },
+};
 
-            gameDisplay.innerHTML = "";
-
-            const iframe = document.createElement("iframe");
-            iframe.style.cssText =
-              "width: 100%; height: 100%; border: none; position: absolute; inset: 0;";
-            iframe.allow = "fullscreen; autoplay; encrypted-media";
-            let loadAttempted = false;
-
-            iframe.onload = () => {
-              if (!loadAttempted) {
-                loadAttempted = true;
-
-                setTimeout(() => {
-                  try {
-                    const iframeDoc = iframe.contentWindow.document;
-                    iframeDoc.open();
-                    iframeDoc.write(html);
-                    iframeDoc.close();
-
-                    document.getElementById("fullscreenBtn").disabled = false;
-                    this.isPlaying = true;
-                    showToast("Ready", "Game loaded successfully!", "success");
-                    lucide.createIcons();
-                  } catch (err) {
-                    console.error("Failed to write to iframe:", err);
-                    throw err;
-                  }
-                }, 100);
-              }
-            };
-
-            iframe.onerror = () => {
-              throw new Error("Failed to load iframe");
-            };
-
-            gameDisplay.appendChild(iframe);
-          } catch (err) {
-            console.error("Failed to load game:", err);
-            showToast("Error", "Failed to load game", "error");
-            gameDisplay.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted-foreground); flex-direction: column; gap: 12px; padding: 24px; text-align: center;">
-                <i data-lucide="alert-circle" style="width: 48px; height: 48px;"></i>
-                <div>Failed to load game. Please try again later.</div>
-            </div>
-        `;
-            lucide.createIcons();
-          }
-        },
-
-        fullscreen() {
-          const iframe = document.querySelector("#gameDisplay iframe");
-          if (iframe) {
-            if (iframe.requestFullscreen) {
-              iframe.requestFullscreen();
-            } else if (iframe.webkitRequestFullscreen) {
-              iframe.webkitRequestFullscreen();
-            } else if (iframe.mozRequestFullScreen) {
-              iframe.mozRequestFullScreen();
-            } else if (iframe.msRequestFullscreen) {
-              iframe.msRequestFullscreen();
-            }
-            showToast("Fullscreen", "Entering fullscreen mode", "success");
-          }
-        },
-
-        async download() {
-          if (!this.currentGame || !this.currentGame.url) {
-            showToast("Error", "No game selected", "error");
-            return;
-          }
-
-          try {
-            showToast("Downloading", "Preparing download...", "info");
-            const response = await fetch(
-              this.currentGame.url + "?t=" + Date.now()
-            );
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-            const html = await response.text();
-            const blob = new Blob([html], { type: "text/html" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `${this.currentGame.name.replace(
-              /[^a-z0-9]/gi,
-              "_"
-            )}.html`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            showToast("Success", "Game downloaded successfully", "success");
-          } catch (err) {
-            console.error("Download failed:", err);
-            showToast("Error", "Failed to download game", "error");
-          }
-        },
-      };
-
-      app.init();
+app.init();
     </script>
   </body>
 </html>

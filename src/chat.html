@@ -11,29 +11,28 @@
     <style>
       :root {
         --radius: 0.875rem;
-        --primary: oklch(0.922 0 0);
-        --primary-foreground: #0e0e0e;
-        --secondary: oklch(0.269 0 0);
-        --secondary-foreground: oklch(0.985 0 0);
-        --accent: #262626;
-        --accent-foreground: oklch(0.985 0 0);
-        --background: oklch(0.145 0 0);
-        --foreground: oklch(0.985 0 0);
-        --card: oklch(0.205 0 0);
-        --card-foreground: oklch(0.985 0 0);
-        --popover: oklch(0.269 0 0);
-        --popover-foreground: oklch(0.985 0 0);
-        --muted: oklch(0.269 0 0);
-        --muted-foreground: oklch(0.708 0 0);
-        --destructive: oklch(0.704 0.191 22.216);
-        --destructive-foreground: oklch(0.985 0 0);
-        --border: oklch(1 0 0 / 10%);
-        --input: oklch(1 0 0 / 15%);
-        --ring: oklch(0.556 0 0);
-        --sidebar: oklch(15.907% 0.00002 271.152);
-        --sidebar-foreground: oklch(0.985 0 0);
+        --primary: oklch(0.98 0 0);
+        --primary-foreground: oklch(0.12 0 0);
+        --secondary: oklch(0.22 0 0);
+        --secondary-foreground: oklch(0.98 0 0);
+        --accent: oklch(0.25 0 0);
+        --accent-foreground: oklch(0.98 0 0);
+        --background: oklch(0.12 0 0);
+        --foreground: oklch(0.98 0 0);
+        --card: oklch(0.18 0 0);
+        --card-foreground: oklch(0.98 0 0);
+        --popover: oklch(0.24 0 0);
+        --popover-foreground: oklch(0.98 0 0);
+        --muted: oklch(0.2 0 0);
+        --muted-foreground: oklch(0.65 0 0);
+        --destructive: oklch(0.65 0.25 25);
+        --destructive-foreground: oklch(0.98 0 0);
+        --border: oklch(1 0 0 / 0.12);
+        --input: oklch(1 0 0 / 0.18);
+        --ring: oklch(0.6 0 0);
+        --sidebar: oklch(0.15 0 0);
+        --sidebar-foreground: oklch(0.98 0 0);
       }
-
       * {
         margin: 0;
         padding: 0;
@@ -577,19 +576,19 @@
         </div>
 
         <nav class="nav-section" id="navigation">
-          <a href="./" class="nav-item" data-page="home">
+          <a href="/" class="nav-item" data-page="home">
             <i data-lucide="home"></i>
             <span>Home</span>
           </a>
-          <a href="/#games" data-page="games" data-route="games" class="nav-item">
+          <a href="/games" data-page="games" class="nav-item">
             <i data-lucide="gamepad-2"></i>
             <span>Games</span>
           </a>
-          <a href="/#ai" class="nav-item" data-page="ai" data-route="ai">
+          <a href="/ai" class="nav-item" data-page="ai" >
             <i data-lucide="cpu"></i>
             <span>AI</span>
           </a>
-          <a href="/#chat" class="nav-item active" data-page="chat" data-route="chat">
+          <a href="/chat" class="nav-item active" data-page="chat"
             <i data-lucide="message-square"></i>
             <span>Chat</span>
           </a>
@@ -606,11 +605,10 @@
           </div>
           <div class="footer-actions">
             <a
-              href="/#settings"
+              href="/settings"
               class="footer-btn"
               aria-label="Settings"
               data-page="settings"
-              data-route="settings"
             >
               <i data-lucide="settings"></i>
             </a>
