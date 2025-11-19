@@ -897,6 +897,10 @@
             <i data-lucide="message-square"></i>
             <span>Chat</span>
           </a>
+          <a href="/credits" class="nav-item active" data-page="credits">
+            <i data-lucide="circle-user-round"></i>
+            <span>Credits</span>
+          </a>
         </nav>
         <div class="sidebar-footer">
           <div class="status-indicator" id="statusIndicator">
@@ -1725,6 +1729,15 @@
           },
           afterLeave: ({ from, to }) => {
             console.log(`Leaving ${from} to ${to}`);
+          },
+        }
+      );
+      router.addRoute(
+        'credits',
+        'https://cdn.jsdelivr.net/gh/outbrowsed/syntralite21k@latest/src/credits.html',
+        {
+          onLoad: (container, iframe, { query, state, globalState }) => {
+            console.log('Chat page loaded');
           },
         }
       );
