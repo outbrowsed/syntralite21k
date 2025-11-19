@@ -1266,6 +1266,7 @@
           this.state = new Map();
           this.globalState = {};
           this.stateListeners = new Set();
+          this.initialRouteHandled = false;
 
           this.init();
         }
@@ -1278,10 +1279,13 @@
             const { path, query } = this.parsePath(hash);
 
             if (path && this.routes.has(path)) {
+              this.initialRouteHandled = true;
               this.navigate(path, query, true);
             } else if (this.fallbackRoute && hash) {
               window.location.hash = '';
             }
+
+            this.initialRouteHandled = true;
           };
 
           if (document.readyState === 'loading') {
@@ -1291,7 +1295,9 @@
           }
 
           window.addEventListener('hashchange', () => {
-            this.handleRouteChange();
+            if (this.initialRouteHandled) {
+              this.handleRouteChange();
+            }
           });
 
           window.addEventListener('popstate', () => {
@@ -1377,7 +1383,12 @@
               this.setRouteState(cleanPath, state);
             }
 
-            window.location.hash = fullPath;
+            const targetHash = `#${fullPath}`;
+            if (window.location.hash === targetHash && cleanPath === this.currentRoute) {
+              this.navigate(cleanPath, query, true);
+            } else {
+              window.location.hash = fullPath;
+            }
           } else {
             window.location.hash = '';
           }
@@ -1466,10 +1477,14 @@
         }
 
         async navigate(path, query = {}, skipCheck = false) {
-          if (!skipCheck && (this.isNavigating || path === this.currentRoute)) return;
+          if (!skipCheck && this.isNavigating) return;
 
           const route = this.routes.get(path);
           if (!route) return;
+
+          if (!skipCheck && path === this.currentRoute && this.isRouteActive) {
+            return;
+          }
 
           if (route.beforeEnter) {
             const canEnter = await route.beforeEnter({
@@ -1499,19 +1514,25 @@
           }
 
           try {
-            let content = this.cache.get(path);
+            const isCDN = route.url.includes('cdn.jsdelivr.net');
 
-            if (!content) {
-              const response = await fetch(route.url, {
-                headers: { Accept: 'text/html,text/plain,*/*' },
-                cache: 'no-store',
-              });
-              if (!response.ok) throw new Error(`HTTP ${response.status}`);
-              content = await response.text();
-              this.cache.set(path, content);
+            if (isCDN) {
+              let content = this.cache.get(path);
+
+              if (!content) {
+                const response = await fetch(route.url, {
+                  headers: { Accept: 'text/html,text/plain,*/*' },
+                  cache: 'no-store',
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                content = await response.text();
+                this.cache.set(path, content);
+              }
+
+              await this.renderFullPage(content);
+            } else {
+              await this.renderDirectIframe(route.url);
             }
-
-            await this.renderFullPage(content);
 
             this.currentRoute = path;
             this.isRouteActive = true;
@@ -1632,6 +1653,44 @@
           });
         }
 
+        async renderDirectIframe(url) {
+          return new Promise((resolve) => {
+            this.contentContainer.style.opacity = '0';
+            this.contentContainer.style.transition = 'opacity 0.3s ease';
+
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.style.cssText = 'width: 100%; height: 100%; border: none; display: block;';
+
+            this.contentContainer.innerHTML = '';
+            this.contentContainer.appendChild(iframe);
+
+            if (!this.contentContainer.parentNode) {
+              document.body.appendChild(this.contentContainer);
+            }
+
+            iframe.onload = () => {
+              requestAnimationFrame(() => {
+                this.contentContainer.style.opacity = '1';
+                setTimeout(resolve, 300);
+              });
+            };
+
+            iframe.onerror = () => {
+              console.error('Iframe failed to load');
+              this.contentContainer.style.opacity = '1';
+              resolve();
+            };
+
+            setTimeout(() => {
+              if (this.contentContainer.style.opacity === '0') {
+                this.contentContainer.style.opacity = '1';
+                resolve();
+              }
+            }, 5000);
+          });
+        }
+
         restoreOriginalContent() {
           if (this.contentContainer && this.originalContent) {
             this.contentContainer.style.opacity = '0';
@@ -1732,12 +1791,13 @@
           },
         }
       );
+
       router.addRoute(
         'credits',
         'https://cdn.jsdelivr.net/gh/outbrowsed/syntralite21k@main/src/credits.html',
         {
           onLoad: (container, iframe, { query, state, globalState }) => {
-            console.log('Chat page loaded');
+            console.log('Credits page loaded');
           },
         }
       );
